@@ -7,14 +7,7 @@ import (
 	"time"
 )
 
-//Если не нужна, то убрать эту ф-ию нафиг
-/*func pauseEachLevel() {
-	//fmt.Println("Нажмите Enter для продолжения")
-	bufio.NewReader(os.Stdin).ReadBytes('\n')
-}*/
-
 func sleepEachStep() {
-	//желательно применить метод DRY
 	fmt.Print(".")
 	duration := time.Duration(1) * time.Second
 	time.Sleep(duration)
@@ -36,7 +29,7 @@ func showStatus(i int, j int, hpHero int, hpDragon int) {
 }
 
 func main() {
-	weaponOfHero := [11]string{
+	weaponOfHero := [10]string{
 		"мечом",
 		"огнём",
 		"ионной пушкой",
@@ -47,7 +40,6 @@ func main() {
 		"поварёжкой",
 		"ноутбуком",
 		"камнем",
-		"использовать аптечку",
 	}
 
 	weaponOfDragon := [5]string{
@@ -77,11 +69,12 @@ func main() {
 	harmOfHero[8] = 2               //ноутбуком
 	harmOfHero[9] = 4               //камнем
 
-	attackHero := true
-	fmt.Println("\nПривет, герой!\n")
+	attackHero := true //Инициализация атаки Героя первым
+	hpHero := 100      //инициализация жизни Героя
+	hpDragon := 100    //инициализация жизни Дракона
+	weapon := 0        //инициализация оружия
 
-	hpHero := 100       //инициализация жизни Героя
-	hpDragon := 100     //инициализация жизни Дракона
+	fmt.Println("\nПривет, герой!\n")
 	for i := 0; ; i++ { //Цикл отображения отображает и итерирует Уровни (бесконечны)
 		for j := 0; j < 10; j++ { //Цикл отображает и итерирует Ходы
 			showStatus(i, j, hpHero, hpDragon)
@@ -89,31 +82,24 @@ func main() {
 			if attackHero == true { // Атака Героя //Надо реализовать эту конструкцию в функции
 				attackHero = false
 				//Логика оружия героя
-				weapon := 0
 				fmt.Println("Выберите оружие для атаки на Дракона:\n")
-				for o := 0; o < 11; o++ { //Цикл выводит список оружия Героя
+				for o := 0; o < 10; o++ { //Цикл выводит список оружия Героя
 					fmt.Println(o+1, weaponOfHero[o])
 				}
 				fmt.Fscan(os.Stdin, &weapon) //А вот тут надо сделать обработчик ошибок, т.к. будет вылетать out of range, если юзер напишет < 10
-				if weapon == 11 {
+
+				//Вывод оружия героя
+				fmt.Println("\nВы атакуете Дракона", weaponOfHero[weapon-1], "\n")
+				sleepEachStep()
+				fmt.Println("Вы нанесли урон Дракону", harmOfHero[weapon-1], "hp")
+				hpDragon = hpDragon - harmOfHero[weapon-1]
+				sleepEachStep()
+				if hpDragon <= 20 { //использование аптечки
 					j++
-					hpHero += 30
-					fmt.Println("Вы использовали аптечку")
 					showStatus(i, j, hpHero, hpDragon)
-				} else {
-					//Вывод оружия героя
-					fmt.Println("\nВы атакуете Дракона", weaponOfHero[weapon-1], "\n")
+					hpDragon = hpDragon + 20
+					fmt.Println("Дракон использовал аптечку +30 hp")
 					sleepEachStep()
-					fmt.Println("Вы нанесли урон Дракону", harmOfHero[weapon-1], "hp")
-					hpDragon = hpDragon - harmOfHero[weapon-1]
-					sleepEachStep()
-					if hpDragon <= 20 { //использование аптечки
-						j++
-						showStatus(i, j, hpHero, hpDragon)
-						hpDragon = hpDragon + 20
-						fmt.Println("Дракон использовал аптечку +30 hp")
-						sleepEachStep()
-					}
 				}
 
 			} else if attackHero == false { //Атака дракона
