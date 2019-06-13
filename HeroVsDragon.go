@@ -1,23 +1,35 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"math/rand"
 	"os"
 	"time"
 )
 
-func pauseEachLevel() {
+//Если не нужна, то убрать эту ф-ию нафиг
+/*func pauseEachLevel() {
 	//fmt.Println("Нажмите Enter для продолжения")
 	bufio.NewReader(os.Stdin).ReadBytes('\n')
+}*/
+
+func sleepEachStep() {
+	//желательно применить метод DRY
+	fmt.Print(".")
+	duration := time.Duration(1) * time.Second
+	time.Sleep(duration)
+	fmt.Print(".")
+	time.Sleep(duration)
+	fmt.Print(".\n\n")
+}
+
+func randomIndexWeaponOfDragon() int {
+	rand.Seed(time.Now().UTC().UnixNano())
+	e := rand.Intn(5)
+	return e
 }
 
 func main() {
-	const mech = "мечом"
-	const fire = "огнём"
-	const sablya = "ионной пушкой"
-
 	weaponOfHero := [10]string{
 		"мечом",
 		"огнём",
@@ -31,27 +43,31 @@ func main() {
 		"камнем",
 	}
 
-	weaponOfDragon := [10]string{
+	weaponOfDragon := [5]string{
 		"дышащим огнём",
 		"лапами",
 		"камнем",
 		"прыжками",
 		"хвостом",
-		"гопниками с района",
-		"певицей без голоса",
-		"гиперкубической призмой",
-		"сферическими идиотами",
-		"хомячками",
 	}
-	attackHero := true
 
+	harmOfDragon := make(map[int]int)
+	harmOfDragon[0] = 30 //дышащим огнём
+	harmOfDragon[1] = 20 //ударом лап
+	harmOfDragon[2] = 25 //камнями
+	harmOfDragon[3] = 10 //прыжками
+	harmOfDragon[4] = 15 //ударом хвоста
+
+	attackHero := true
 	fmt.Println("\nПривет, герой!\n")
 
+	hpHero := 100 //инициализация жизни Героя
 	//Цикл отображения отображает и итерирует Уровни
-	for i := 0; i < 10; i++ {
+	for i := 0; ; i++ {
 		//Цикл отображает и итерирует Ходы
-		for j := 0; j < 10; j++ {
+		for j := 0; ; j++ {
 			fmt.Println("Уровень", i+1, "\nХод", j+1)
+			fmt.Println("У вас", hpHero, "hp")
 
 			//Надо реализовать эту конструкцию в функции
 			if attackHero == true {
@@ -65,17 +81,18 @@ func main() {
 				fmt.Fscan(os.Stdin, &weapon) //А вот тут надо сделать обработчик ошибок, т.к. будет вылетать out of range, если юзер напишет < 10
 				//Вывод оружия героя
 				fmt.Println("\nВы атакуете Дракона", weaponOfHero[weapon-1], "\n")
+
+				sleepEachStep()
 			} else if attackHero == false {
 				attackHero = true
-				rand.Seed(time.Now().UTC().UnixNano())
-				fmt.Println("\nДракон атакует Вас", weaponOfDragon[rand.Intn(10)])
+				randLocal := randomIndexWeaponOfDragon() //чтобы ф-ия вызывалась один раз иначе при каждом вызове будет другое значение
+				fmt.Println("\nДракон атакует Вас", weaponOfDragon[randLocal])
+				hpHero = hpHero - harmOfDragon[randLocal]
+				sleepEachStep()
+				fmt.Println("Дракон нанёс вам урон", harmOfDragon[randLocal], "hp")
+				sleepEachStep()
 			}
-			pauseEachLevel()
 		}
-
-		//fmt.Println(attackHero)
-		/*fmt.Println(isDragonAttacks(false))
-		fmt.Println(isYouAttack(true))*/
 	}
 }
 
