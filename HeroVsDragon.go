@@ -1,3 +1,7 @@
+/* Author - sula7 (Sultan Moldobaev)
+Please read a manual on GitHub on how to run this application
+*/
+
 package main
 
 import (
@@ -59,34 +63,34 @@ func selectLangMenuItem() {
 		selectedMenuLang = 1
 	case 2:
 		selectedMenuLang = 2
+	default:
+		checkLangMenu("Неверный выбор, введите снова!", "Incorrect selection, try again")
+		showLangMenu()
+		selectLangMenuItem()
 	}
 }
 
-func selectMainMenuItem() {
+func checkLangMenu(textRU string, textEN string) {
+	if selectedMenuLang == 1 {
+		fmt.Println(textRU)
+	} else if selectedMenuLang == 2 {
+		fmt.Println(textEN)
+	}
+}
+
+func selectMainMenuItem() { //Основные действия в меню
 	fmt.Scan(&inputMainMenuItem)
 	switch inputMainMenuItem {
 	case 1: //Начать новую игру
-		if selectedMenuLang == 1 {
-			fmt.Println("Загружается...")
-		} else if selectedMenuLang == 2 {
-			fmt.Println("Starting...")
-		}
+		checkLangMenu("Загружается...", "Starting...")
 	case 2: //Выбрать язык
 		showLangMenu()
 		selectLangMenuItem()
 	case 3: //Выход
-		if selectedMenuLang == 1 {
-			fmt.Println("Всего доброго!")
-		} else if selectedMenuLang == 2 {
-			fmt.Println("Good Bye!")
-		}
-		os.Exit(2)
+		checkLangMenu("До скорой встречи!", "Good Bye!")
+		os.Exit(0)
 	default:
-		if selectedMenuLang == 1 {
-			fmt.Println("Неверный выбор, введите снова!")
-		} else if selectedMenuLang == 2 {
-			fmt.Println("Incorrect selection, try again")
-		}
+		checkLangMenu("Неверный выбор, введите снова!", "Incorrect selection, try again")
 		selectMainMenuItem()
 	}
 }
