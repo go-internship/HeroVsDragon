@@ -16,6 +16,7 @@ var menuItemMainMenuEN [3]string
 
 var menuItemLangMenu [3]string
 var isGameStart bool = false
+var isGameEnd bool = false
 
 var selectedMenuLang bool = true //true = RU, false = EN
 var inputMainMenuItem int
@@ -107,9 +108,17 @@ func selectMainMenuItem() { //Основные действия в меню
 func gameStart() {
 	checkLang("Введите имя Героя:", "Enter Hero name:")
 	inputHeroName()
-	showWeaponHero()
-	selectWeapon()
-	attackToDragon()
+	for {
+		if !isGameEnd {
+			showWeaponHero()
+			selectWeapon()
+			attackToDragon()
+			showGameResultRU()
+		} else if isGameEnd {
+			gameEnd()
+			break
+		}
+	}
 }
 
 func inputHeroName() {
@@ -122,7 +131,20 @@ func showGameResultRU() { //Сделать перевод
 }
 
 func showCurrentHP() {
+	checkCurrentHp()
 	fmt.Println(hpHero, "hp", "\t\t\t\t", hpDragon, "hp")
+}
+
+func checkCurrentHp() {
+	if hpHero|hpDragon == 0 {
+		isGameEnd = true
+	}
+}
+
+func gameEnd() {
+	fmt.Println("\n\n")
+	fmt.Println("Игра завершилась")
+	showGameResultRU()
 }
 
 func showWeaponHero() {
@@ -135,19 +157,66 @@ func showWeaponHero() {
 }
 
 func selectWeapon() {
+	checkCurrentHp()
 	fmt.Scan(&weaponHero)
+	fmt.Println("\n")
+}
+
+func randmize(min int, max int) int {
+	return min + rand.Intn(max-min)
 }
 
 func attackToDragon() {
-	rand.Seed(time.Now().UnixNano())
+	rand.Seed(time.Now().UTC().UnixNano())
 	switch weaponHero {
 	case 1:
-		hpDragon = hpDragon - 10
-		fmt.Println("Вы нанесли Дракону 10 урона")
-		randomized := rand.Intn(20)
-		hpHero = hpHero - randomized
+		caseOneAttackToDragon()
+	case 2:
+		caseTwoAttackToDragon()
+	case 3:
+		caseThreeAttackToDragon()
+	default:
+		checkLang("Неверный выбор, введите снова!", "Incorrect selection, try again")
+	}
+}
+
+func caseOneAttackToDragon() {
+	randomized := randmize(0, 10)
+	hpHero = hpHero - randomized
+	hpDragon = hpDragon - 10
+	fmt.Println("Вы нанесли Дракону 10 урона")
+	if randomized == 0 {
+		fmt.Println("Дракон промахнулся и не нанёс вам урона :)")
+	} else {
 		fmt.Println("Дракон нанёс вам", randomized, "урона")
 	}
+	fmt.Println("\n")
+}
+
+func caseTwoAttackToDragon() {
+	randomized := randmize(10, 20)
+	hpHero = hpHero - randomized
+	hpDragon = hpDragon - 15
+	fmt.Println("Вы нанесли Дракону 10 урона")
+	if randomized == 0 {
+		fmt.Println("Дракон промахнулся и не нанёс вам урона :)")
+	} else {
+		fmt.Println("Дракон нанёс вам", randomized, "урона")
+	}
+	fmt.Println("\n")
+}
+
+func caseThreeAttackToDragon() {
+	randomized := randmize(20, 30)
+	hpHero = hpHero - randomized
+	hpDragon = hpDragon - 30
+	fmt.Println("Вы нанесли Дракону 10 урона")
+	if randomized == 0 {
+		fmt.Println("Дракон промахнулся и не нанёс вам урона :)")
+	} else {
+		fmt.Println("Дракон нанёс вам", randomized, "урона")
+	}
+	fmt.Println("\n")
 }
 
 func main() {
