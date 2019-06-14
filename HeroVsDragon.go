@@ -10,7 +10,7 @@ var menuItemMainMenuEN [3]string
 
 var menuItemLangMenu [3]string
 
-var selectedMenuLang int = 2 //1 = RU, 2 = EN
+var selectedMenuLang int = 1 //1 = RU, 2 = EN
 var inputMainMenuItem int
 var inputLangMenuItem int
 
@@ -65,24 +65,39 @@ func selectLangMenuItem() {
 func selectMainMenuItem() {
 	fmt.Scan(&inputMainMenuItem)
 	switch inputMainMenuItem {
-	case 1:
-		fmt.Println("Новая игра загружается")
-	case 2:
+	case 1: //Начать новую игру
+		if selectedMenuLang == 1 {
+			fmt.Println("Загружается...")
+		} else if selectedMenuLang == 2 {
+			fmt.Println("Starting...")
+		}
+	case 2: //Выбрать язык
 		showLangMenu()
 		selectLangMenuItem()
-	case 3:
-		fmt.Println("Всего доброго!")
+	case 3: //Выход
+		if selectedMenuLang == 1 {
+			fmt.Println("Всего доброго!")
+		} else if selectedMenuLang == 2 {
+			fmt.Println("Good Bye!")
+		}
 		os.Exit(2)
 	default:
-		fmt.Println("Неверный выбор")
+		if selectedMenuLang == 1 {
+			fmt.Println("Неверный выбор, введите снова!")
+		} else if selectedMenuLang == 2 {
+			fmt.Println("Incorrect selection, try again")
+		}
+		selectMainMenuItem()
 	}
 }
 
 func main() {
-	if selectedMenuLang == 1 {
-		showMainMenuRU()
-	} else if selectedMenuLang == 2 {
-		showMainMenuEN()
+	for {
+		if selectedMenuLang == 1 {
+			showMainMenuRU()
+		} else if selectedMenuLang == 2 {
+			showMainMenuEN()
+		}
+		selectMainMenuItem()
 	}
-	selectMainMenuItem()
 }
