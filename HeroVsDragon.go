@@ -131,12 +131,12 @@ func showGameResultRU() { //Сделать перевод
 }
 
 func showCurrentHP() {
-	checkCurrentHp()
 	fmt.Println(hpHero, "hp", "\t\t\t\t", hpDragon, "hp")
+	checkCurrentHp()
 }
 
 func checkCurrentHp() {
-	if hpHero|hpDragon == 0 {
+	if hpHero|hpDragon <= 0 {
 		isGameEnd = true
 	}
 }
@@ -157,7 +157,6 @@ func showWeaponHero() {
 }
 
 func selectWeapon() {
-	checkCurrentHp()
 	fmt.Scan(&weaponHero)
 	fmt.Println("\n")
 }
