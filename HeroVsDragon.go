@@ -2,125 +2,87 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
 	"os"
-	"time"
 )
 
-func sleepEachStep() {
-	fmt.Print(".")
-	duration := time.Duration(1) * time.Second
-	time.Sleep(duration)
-	fmt.Print(".")
-	time.Sleep(duration)
-	fmt.Print(".\n\n")
+var menuItemMainMenuRU [3]string
+var menuItemMainMenuEN [3]string
+
+var menuItemLangMenu [3]string
+
+var selectedMenuLang int = 2 //1 = RU, 2 = EN
+var inputMainMenuItem int
+var inputLangMenuItem int
+
+func showMainMenuItemsRU() {
+	menuItemMainMenuRU[0] = "1. Начать новую игру"
+	menuItemMainMenuRU[1] = "2. Выбрать язык"
+	menuItemMainMenuRU[2] = "3. Выход"
 }
 
-func randomIndexWeaponOfDragon() int {
-	rand.Seed(time.Now().UTC().UnixNano())
-	e := rand.Intn(5)
-	return e
+func showMainMenuItemsEN() {
+	menuItemMainMenuEN[0] = "1. Start a new game"
+	menuItemMainMenuEN[1] = "2. Choose lang"
+	menuItemMainMenuEN[2] = "3. Exit"
 }
 
-func showStatus(i int, j int, hpHero int, hpDragon int) {
-	fmt.Println("Уровень", i+1, "\nХод", j+1)
-	fmt.Println("У вас", hpHero, "hp")
-	fmt.Println("У Дракона", hpDragon, "hp")
+func showLangMenuItems() {
+	menuItemLangMenu[0] = "1. Русский"
+	menuItemLangMenu[1] = "2. English"
+}
+
+func showLangMenu() {
+	showLangMenuItems()
+	for i := 0; i < len(menuItemLangMenu); i++ {
+		fmt.Println(menuItemLangMenu[i])
+	}
+}
+
+func showMainMenuRU() {
+	showMainMenuItemsRU()
+	for i := 0; i < len(menuItemMainMenuRU); i++ {
+		fmt.Println(menuItemMainMenuRU[i])
+	}
+}
+
+func showMainMenuEN() {
+	showMainMenuItemsEN()
+	for i := 0; i < len(menuItemMainMenuEN); i++ {
+		fmt.Println(menuItemMainMenuEN[i])
+	}
+}
+
+func selectLangMenuItem() {
+	fmt.Scan(&inputLangMenuItem)
+	switch inputLangMenuItem {
+	case 1:
+		selectedMenuLang = 1
+	case 2:
+		selectedMenuLang = 2
+	}
+}
+
+func selectMainMenuItem() {
+	fmt.Scan(&inputMainMenuItem)
+	switch inputMainMenuItem {
+	case 1:
+		fmt.Println("Новая игра загружается")
+	case 2:
+		showLangMenu()
+		selectLangMenuItem()
+	case 3:
+		fmt.Println("Всего доброго!")
+		os.Exit(2)
+	default:
+		fmt.Println("Неверный выбор")
+	}
 }
 
 func main() {
-	weaponOfHero := [10]string{
-		"мечом",
-		"огнём",
-		"ионной пушкой",
-		"базукой",
-		"пистолетом",
-		"руками",
-		"сковородкой",
-		"поварёжкой",
-		"ноутбуком",
-		"камнем",
+	if selectedMenuLang == 1 {
+		showMainMenuRU()
+	} else if selectedMenuLang == 2 {
+		showMainMenuEN()
 	}
-
-	weaponOfDragon := [5]string{
-		"дышащим огнём",
-		"ударом лап",
-		"камнем",
-		"прыжками",
-		"ударом хвоста",
-	}
-
-	harmOfDragon := make(map[int]int) //Урон Дракона Герою
-	harmOfDragon[0] = 30              //дышащим огнём
-	harmOfDragon[1] = 20              //ударом лап
-	harmOfDragon[2] = 25              //камнями
-	harmOfDragon[3] = 10              //прыжками
-	harmOfDragon[4] = 15              //ударом хвоста
-
-	harmOfHero := make(map[int]int) //Урон Героя Дракону
-	harmOfHero[0] = 10              //мечом
-	harmOfHero[1] = 20              //огнём
-	harmOfHero[2] = 40              //ионной пушкой
-	harmOfHero[3] = 35              //базукой
-	harmOfHero[4] = 5               //пистолетом
-	harmOfHero[5] = 1               //руками
-	harmOfHero[6] = 3               //сковородкой
-	harmOfHero[7] = 3               //поварёжкой
-	harmOfHero[8] = 2               //ноутбуком
-	harmOfHero[9] = 4               //камнем
-
-	attackHero := true //Инициализация атаки Героя первым
-	hpHero := 100      //инициализация жизни Героя
-	hpDragon := 100    //инициализация жизни Дракона
-	weapon := 0        //инициализация оружия
-
-	fmt.Println("\nПривет, герой!\n")
-	for i := 0; ; i++ { //Цикл отображения отображает и итерирует Уровни (бесконечны)
-		for j := 0; j < 10; j++ { //Цикл отображает и итерирует Ходы
-			showStatus(i, j, hpHero, hpDragon)
-
-			if attackHero == true { // Атака Героя //Надо реализовать эту конструкцию в функции
-				attackHero = false
-				//Логика оружия героя
-				fmt.Println("Выберите оружие для атаки на Дракона:\n")
-				for o := 0; o < 10; o++ { //Цикл выводит список оружия Героя
-					fmt.Println(o+1, weaponOfHero[o])
-				}
-				fmt.Fscan(os.Stdin, &weapon) //А вот тут надо сделать обработчик ошибок, т.к. будет вылетать out of range, если юзер напишет < 10
-
-				//Вывод оружия героя
-				fmt.Println("\nВы атакуете Дракона", weaponOfHero[weapon-1], "\n")
-				sleepEachStep()
-				fmt.Println("Вы нанесли урон Дракону", harmOfHero[weapon-1], "hp")
-				hpDragon = hpDragon - harmOfHero[weapon-1]
-				sleepEachStep()
-				if hpDragon <= 20 { //использование аптечки
-					j++
-					showStatus(i, j, hpHero, hpDragon)
-					hpDragon = hpDragon + 20
-					fmt.Println("Дракон использовал аптечку +30 hp")
-					sleepEachStep()
-				}
-
-			} else if attackHero == false { //Атака дракона
-				attackHero = true
-				randLocal := randomIndexWeaponOfDragon() //чтобы ф-ия вызывалась один раз иначе при каждом вызове будет другое значение
-				fmt.Println("\nДракон атакует Вас", weaponOfDragon[randLocal])
-				hpHero = hpHero - harmOfDragon[randLocal]
-				sleepEachStep()
-				fmt.Println("Дракон нанёс вам урон", harmOfDragon[randLocal], "hp")
-				sleepEachStep()
-
-				if hpHero <= 20 {
-					j++
-					showStatus(i, j, hpHero, hpDragon)
-					hpHero = hpHero + 30
-					fmt.Println("Вы использовали аптечку +30 hp")
-					sleepEachStep()
-				}
-			}
-		}
-	}
+	selectMainMenuItem()
 }
-
-//TODO: [РЕШЕНО]1. Решить вопрос с функц. рандомизации выбора оружия. 2. Отобразить урон, hp дракона и героя. После каждого хода.
