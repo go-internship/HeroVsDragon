@@ -5,6 +5,7 @@ Please read a manual on GitHub on how to run this application
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"math/rand"
 	"os"
@@ -19,7 +20,7 @@ var isGameStart bool = false
 var isGameEnd bool = false
 
 var selectedMenuLang bool = true //true = RU, false = EN
-var inputMainMenuItem int
+var inputMainMenuItem string
 var inputLangMenuItem int
 var hpHero int = 100
 var hpDragon int = 100
@@ -88,15 +89,17 @@ func checkLang(textRU string, textEN string) {
 }
 
 func selectMainMenuItem() { //Основные действия в меню
-	fmt.Scan(&inputMainMenuItem)
+	someThing := bufio.NewScanner(os.Stdin)
+	someThing.Scan()
+	inputMainMenuItem = someThing.Text()
 	switch inputMainMenuItem {
-	case 1: //Начать новую игру
+	case "1": //Начать новую игру
 		checkLang("Загружается...", "Starting...")
 		isGameStart = true
-	case 2: //Выбрать язык
+	case "2": //Выбрать язык
 		showLangMenu()
 		selectLangMenuItem()
-	case 3: //Выход
+	case "3": //Выход
 		checkLang("До скорой встречи!", "Good Bye!")
 		os.Exit(0)
 	default:
@@ -122,11 +125,16 @@ func gameStart() {
 }
 
 func inputHeroName() {
-	fmt.Scan(&heroName)
+	//fmt.Sscanln(heroName)
+	//for i := 0; i < 2; i++ {
+	someThing := bufio.NewScanner(os.Stdin)
+	someThing.Scan()
+	heroName = someThing.Text()
+	//}
 }
 
 func showGameResultRU() { //Сделать перевод
-	fmt.Println("Герой", heroName, "\t\t\t", "Дракон Драконович")
+	fmt.Println("Герой", heroName, "\t\t\t", "Дракон Драконыч")
 	showCurrentHP()
 }
 
