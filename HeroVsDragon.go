@@ -12,69 +12,122 @@ import (
 	"time"
 )
 
-var menuItemMainMenuRU [3]string
-var menuItemMainMenuEN [3]string
-
-var menuItemLangMenu [3]string
 var isGameStart bool = false
 var isGameEnd bool = false
 
 var selectedMenuLang bool = true //true = RU, false = EN
 var inputMainMenuItem string
-var inputLangMenuItem int
+var inputLangMenuItem string
 var hpHero int = 100
 var hpDragon int = 100
 var weaponHero int = 0
 
+const harmOfSword = 10
+const harmOfArrow = 15
+const harmOfFrstn = 30
+
 var heroName string
 
-func showMainMenuItemsRU() {
-	menuItemMainMenuRU[0] = "1. Начать новую игру"
-	menuItemMainMenuRU[1] = "2. Выбрать язык"
-	menuItemMainMenuRU[2] = "3. Выход"
+type menuData struct {
+	point1, point2, point3, langRU, langEN, loading, hero, dragonName, bye, incorrectInp, entHeroName,
+	gameOver, selWeapon, weapon1, weapon2, weapon3 string
 }
 
-func showMainMenuItemsEN() {
-	menuItemMainMenuEN[0] = "1. Start a new game"
-	menuItemMainMenuEN[1] = "2. Choose lang"
-	menuItemMainMenuEN[2] = "3. Exit"
+type gameDataText struct {
+	hp string
 }
 
-func showLangMenuItems() {
-	menuItemLangMenu[0] = "1. Русский"
-	menuItemLangMenu[1] = "2. English"
+type gameDataLogic struct {
+	harmOfSword, harmOfArrow, harmOfFrstn int
+}
+
+func setGetMainMenuTextRU() menuData {
+	mainMenu := menuData{
+		point1:       "1. Начать новую игру",
+		point2:       "2. Выбрать язык",
+		point3:       "3. Выход",
+		langRU:       "1. Русский",
+		langEN:       "2. English",
+		loading:      "Загружается...",
+		hero:         "Герой",
+		dragonName:   "Дракон Драконыч",
+		bye:          "До скорой встречи",
+		incorrectInp: "Неверный выбор, повторите снова",
+		entHeroName:  "Введите имя Героя:",
+		gameOver:     "Игра завершилась",
+		selWeapon:    "Выберите оружие:",
+		weapon1:      "1. Меч",
+		weapon2:      "2. Стрела",
+		weapon3:      "3. Огненный камень",
+	}
+	return mainMenu
+}
+
+func setGetMainMenuTextEN() menuData {
+	mainMenu := menuData{
+		point1:       "1. Start a new game",
+		point2:       "2. Choose lang",
+		point3:       "3. Exit",
+		loading:      "Loading...",
+		hero:         "Hero",
+		dragonName:   "DragonName DragonNameer",
+		bye:          "Good bye :)",
+		incorrectInp: "Incorrect selection, try again",
+		entHeroName:  "Enter Hero name:",
+		gameOver:     "Game over",
+		selWeapon:    "Select weapon:",
+		weapon1:      "1. Sword",
+		weapon2:      "2. Arrow",
+		weapon3:      "3. Firestone",
+	}
+	return mainMenu
+}
+
+func setGetGameDataTextRU() gameDataText {
+	data := gameDataText{
+		hp: "hp",
+	}
+	return data
+}
+
+func setGetGameDataTextEN() gameDataText {
+	data := gameDataText{
+		hp: "hp",
+	}
+	return data
+}
+
+func setGetGameDataLogic() gameDataLogic {
+	data := gameDataLogic{
+		harmOfSword: 10,
+		harmOfArrow: 15,
+		harmOfFrstn: 30,
+	}
+	return data
 }
 
 func showLangMenu() {
-	showLangMenuItems()
-	for i := 0; i < len(menuItemLangMenu); i++ {
-		fmt.Println(menuItemLangMenu[i])
-	}
+	fmt.Println(setGetMainMenuTextRU().langRU)
+	fmt.Println(setGetMainMenuTextRU().langEN)
 }
 
-func showMainMenuRU() {
-	showMainMenuItemsRU()
-	for i := 0; i < len(menuItemMainMenuRU); i++ {
-		fmt.Println(menuItemMainMenuRU[i])
-	}
-}
-
-func showMainMenuEN() {
-	showMainMenuItemsEN()
-	for i := 0; i < len(menuItemMainMenuEN); i++ {
-		fmt.Println(menuItemMainMenuEN[i])
-	}
+func showMainMenu() {
+	checkLang(setGetMainMenuTextRU().point1, setGetMainMenuTextEN().point1)
+	checkLang(setGetMainMenuTextRU().point2, setGetMainMenuTextEN().point2)
+	checkLang(setGetMainMenuTextRU().point3, setGetMainMenuTextEN().point3)
 }
 
 func selectLangMenuItem() {
-	fmt.Scan(&inputLangMenuItem)
+	someThing := bufio.NewScanner(os.Stdin)
+	someThing.Scan()
+	inputLangMenuItem = someThing.Text()
 	switch inputLangMenuItem {
-	case 1:
+	case "1":
 		selectedMenuLang = true
-	case 2:
+	case "2":
 		selectedMenuLang = false
 	default:
-		checkLang("Неверный выбор, введите снова!", "Incorrect selection, try again")
+		checkLang(setGetMainMenuTextRU().incorrectInp, setGetMainMenuTextEN().incorrectInp)
 		showLangMenu()
 		selectLangMenuItem()
 	}
@@ -94,29 +147,29 @@ func selectMainMenuItem() { //Основные действия в меню
 	inputMainMenuItem = someThing.Text()
 	switch inputMainMenuItem {
 	case "1": //Начать новую игру
-		checkLang("Загружается...", "Starting...")
+		checkLang(setGetMainMenuTextRU().loading, setGetMainMenuTextEN().loading)
 		isGameStart = true
 	case "2": //Выбрать язык
 		showLangMenu()
 		selectLangMenuItem()
 	case "3": //Выход
-		checkLang("До скорой встречи!", "Good Bye!")
+		checkLang(setGetMainMenuTextRU().bye, setGetMainMenuTextEN().bye)
 		os.Exit(0)
 	default:
-		checkLang("Неверный выбор, введите снова!", "Incorrect selection, try again")
+		checkLang(setGetMainMenuTextRU().incorrectInp, setGetMainMenuTextEN().incorrectInp)
 		selectMainMenuItem()
 	}
 }
 
 func gameStart() {
-	checkLang("Введите имя Героя:", "Enter Hero name:")
+	checkLang(setGetMainMenuTextRU().entHeroName, setGetMainMenuTextEN().entHeroName)
 	inputHeroName()
 	for {
 		if !isGameEnd {
+			showGameResultRU()
 			showWeaponHero()
 			selectWeapon()
-			attackToDragon()
-			showGameResultRU()
+			attackToDragonName()
 		} else if isGameEnd {
 			gameEnd()
 			break
@@ -125,40 +178,37 @@ func gameStart() {
 }
 
 func inputHeroName() {
-	//fmt.Sscanln(heroName)
-	//for i := 0; i < 2; i++ {
 	someThing := bufio.NewScanner(os.Stdin)
 	someThing.Scan()
 	heroName = someThing.Text()
-	//}
 }
 
 func showGameResultRU() { //Сделать перевод
-	fmt.Println("Герой", heroName, "\t\t\t", "Дракон Драконыч")
+	fmt.Println(setGetMainMenuTextRU().hero, heroName, "\t\t\t", setGetMainMenuTextRU().dragonName)
 	showCurrentHP()
 }
 
 func showCurrentHP() {
-	fmt.Println(hpHero, "hp", "\t\t\t\t", hpDragon, "hp")
+	fmt.Println(hpHero, setGetGameDataTextRU().hp, "\t\t\t\t", hpDragon, setGetGameDataTextRU().hp)
 	checkCurrentHp()
 }
 
 func checkCurrentHp() {
-	if hpHero|hpDragon <= 0 {
+	if hpHero|hpDragon < 1 {
 		isGameEnd = true
 	}
 }
 
 func gameEnd() {
 	fmt.Println("\n\n")
-	fmt.Println("Игра завершилась")
+	fmt.Println(setGetMainMenuTextRU().gameOver)
 	showGameResultRU()
 }
 
 func showWeaponHero() {
 	fmt.Println("\n")
-	fmt.Println("Выберите оружие:")
-	weaponHero := [3]string{"1. Меч", "2. Стрела", "3. Огенный камень"}
+	fmt.Println(setGetMainMenuTextRU().selWeapon)
+	weaponHero := [3]string{setGetMainMenuTextRU().weapon1, setGetMainMenuTextRU().weapon2, setGetMainMenuTextRU().weapon3}
 	for i := 0; i < len(weaponHero); i++ {
 		fmt.Println(weaponHero[i])
 	}
@@ -173,24 +223,24 @@ func randmize(min int, max int) int {
 	return min + rand.Intn(max-min)
 }
 
-func attackToDragon() {
+func attackToDragonName() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	switch weaponHero {
 	case 1:
-		caseOneAttackToDragon()
+		caseOneAttackToDragonName()
 	case 2:
-		caseTwoAttackToDragon()
+		caseTwoAttackToDragonName()
 	case 3:
-		caseThreeAttackToDragon()
+		caseThreeAttackToDragonName()
 	default:
-		checkLang("Неверный выбор, введите снова!", "Incorrect selection, try again")
+		checkLang(setGetMainMenuTextRU().incorrectInp, setGetMainMenuTextEN().incorrectInp)
 	}
 }
 
-func caseOneAttackToDragon() {
+func caseOneAttackToDragonName() {
 	randomized := randmize(0, 10)
 	hpHero = hpHero - randomized
-	hpDragon = hpDragon - 10
+	hpDragon = hpDragon - harmOfSword
 	fmt.Println("Вы нанесли Дракону 10 урона")
 	if randomized == 0 {
 		fmt.Println("Дракон промахнулся и не нанёс вам урона :)")
@@ -200,11 +250,11 @@ func caseOneAttackToDragon() {
 	fmt.Println("\n")
 }
 
-func caseTwoAttackToDragon() {
+func caseTwoAttackToDragonName() {
 	randomized := randmize(10, 20)
 	hpHero = hpHero - randomized
-	hpDragon = hpDragon - 15
-	fmt.Println("Вы нанесли Дракону 10 урона")
+	hpDragon = hpDragon - harmOfArrow
+	fmt.Println("Вы нанесли Дракону 15 урона")
 	if randomized == 0 {
 		fmt.Println("Дракон промахнулся и не нанёс вам урона :)")
 	} else {
@@ -213,11 +263,11 @@ func caseTwoAttackToDragon() {
 	fmt.Println("\n")
 }
 
-func caseThreeAttackToDragon() {
+func caseThreeAttackToDragonName() {
 	randomized := randmize(20, 30)
 	hpHero = hpHero - randomized
-	hpDragon = hpDragon - 30
-	fmt.Println("Вы нанесли Дракону 10 урона")
+	hpDragon = hpDragon - harmOfFrstn
+	fmt.Println("Вы нанесли Дракону 30 урона")
 	if randomized == 0 {
 		fmt.Println("Дракон промахнулся и не нанёс вам урона :)")
 	} else {
@@ -228,18 +278,10 @@ func caseThreeAttackToDragon() {
 
 func main() {
 	for {
-		if selectedMenuLang {
-			showMainMenuRU()
-			selectMainMenuItem()
-			if isGameStart {
-				break
-			}
-		} else if !selectedMenuLang {
-			showMainMenuEN()
-			selectMainMenuItem()
-			if isGameStart {
-				break
-			}
+		showMainMenu()
+		selectMainMenuItem()
+		if isGameStart {
+			break
 		}
 	}
 	gameStart()
