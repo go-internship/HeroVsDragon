@@ -198,7 +198,7 @@ func gameStart() {
 func inputHeroName() {
 	someThing := bufio.NewScanner(os.Stdin)
 	someThing.Scan()
-	if someThing.Text() == `` {
+	if someThing.Text() == `` { //для обработки пустой строки
 		data := map[string]string{}
 		resp, err := http.Get("https://uinames.com/api/?amount=1&gender=male&region=kyrgyz+republic")
 		if err != nil {
