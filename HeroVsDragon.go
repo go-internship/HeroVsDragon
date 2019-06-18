@@ -6,8 +6,11 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"math/rand"
+	"net/http"
 	"os"
 	"strings"
 	"time"
@@ -76,7 +79,7 @@ func setGetGameDataTextRU() gameDataText { //Игровые тексты
 		harmDragonToHero: "Дракон нанёс Вам урон",
 		hero:             "Герой",
 		dragon:           "Дракон Драконыч",
-		entHeroName:      "Введите имя Героя:",
+		entHeroName:      "Введите имя Героя: (нажмите Enter для случайного)",
 		gameOver:         "Игра завершилась",
 		selWeapon:        "Выберите оружие:",
 		weapon1:          "1. Меч",
@@ -97,7 +100,7 @@ func setGetGameDataTextEN() gameDataText { //Игровые тексты
 		harmDragonToHero: "Dragon damaged You to",
 		hero:             "Hero",
 		dragon:           "Dragon Dragoner",
-		entHeroName:      "Enter Hero name:",
+		entHeroName:      "Enter Hero name: (press Enter to generate random)",
 		gameOver:         "Game over",
 		selWeapon:        "Select weapon:",
 		weapon1:          "1. Sword",
@@ -195,7 +198,20 @@ func gameStart() {
 func inputHeroName() {
 	someThing := bufio.NewScanner(os.Stdin)
 	someThing.Scan()
-	heroName = strings.TrimSpace(someThing.Text()) //Убирает пробелы в начале и в конце
+	if someThing.Text() == `` {
+		data := map[string]string{}
+		resp, err := http.Get("https://uinames.com/api/?amount=1&gender=male&region=kyrgyz+republicc")
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		defer resp.Body.Close()
+		body, _ := ioutil.ReadAll(resp.Body)
+		json.Unmarshal(body, &data)
+		heroName = data["name"]
+	} else {
+		heroName = strings.TrimSpace(someThing.Text()) //Убирает пробелы в начале и в конце
+	}
 	fmt.Println("")
 }
 
@@ -240,7 +256,7 @@ func showWinner() {
 
 func showWeaponHero() {
 	fmt.Println("\n")
-	fmt.Println(setGetGameDataTextRU().selWeapon)
+	fmt.Println(checkLangwReturn(setGetGameDataTextRU().selWeapon, setGetGameDataTextEN().selWeapon))
 	weaponHero := [3]string{
 		checkLangwReturn(setGetGameDataTextRU().weapon1, setGetGameDataTextEN().weapon1),
 		checkLangwReturn(setGetGameDataTextRU().weapon2, setGetGameDataTextEN().weapon2),
