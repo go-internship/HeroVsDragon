@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -34,7 +35,7 @@ type menuData struct {
 
 type gameDataText struct {
 	hp, dragonMiss, harmHeroToDragon, harmDragonToHero, hero, dragon, entHeroName,
-	gameOver, selWeapon, weapon1, weapon2, weapon3 string
+	gameOver, selWeapon, weapon1, weapon2, weapon3, winner string
 }
 
 type gameDataLogic struct {
@@ -81,6 +82,7 @@ func setGetGameDataTextRU() gameDataText {
 		weapon1:          "1. Меч",
 		weapon2:          "2. Стрела",
 		weapon3:          "3. Огненный камень",
+		winner:           "Победил",
 	}
 	return data
 }
@@ -99,6 +101,7 @@ func setGetGameDataTextEN() gameDataText {
 		weapon1:          "1. Sword",
 		weapon2:          "2. Arrow",
 		weapon3:          "3. Firestone",
+		winner:           "Winner is",
 	}
 	return data
 }
@@ -126,7 +129,7 @@ func showMainMenu() {
 func selectLangMenuItem() {
 	someThing := bufio.NewScanner(os.Stdin)
 	someThing.Scan()
-	inputLangMenuItem = someThing.Text()
+	inputLangMenuItem = strings.TrimSpace(someThing.Text()) //Убирает пробелы в начале и в конце
 	switch inputLangMenuItem {
 	case "1":
 		selectedMenuLang = true
@@ -146,10 +149,10 @@ func checkLangwReturn(textRU string, textEN string) string {
 	return textEN
 }
 
-func selectMainMenuItem() { //Основные действия в меню
+func selectMainMenuItem() {
 	someThing := bufio.NewScanner(os.Stdin)
 	someThing.Scan()
-	inputMainMenuItem = someThing.Text()
+	inputMainMenuItem = strings.TrimSpace(someThing.Text()) //Убирает пробелы в начале и в конце
 	switch inputMainMenuItem {
 	case "1": //Начать новую игру
 		fmt.Println(checkLangwReturn(setGetMainMenuTextRU().loading, setGetMainMenuTextEN().loading))
@@ -174,10 +177,11 @@ func gameStart() {
 			showGameResult()
 			showWeaponHero()
 			selectWeapon()
-			attackToDragonName()
+			attackToDragon()
 			checkCurrentHp()
 		} else if isGameEnd {
 			gameEnd()
+			showWinner()
 			break
 		}
 	}
@@ -186,7 +190,7 @@ func gameStart() {
 func inputHeroName() {
 	someThing := bufio.NewScanner(os.Stdin)
 	someThing.Scan()
-	heroName = someThing.Text()
+	heroName = strings.TrimSpace(someThing.Text())
 	fmt.Println("")
 }
 
@@ -196,7 +200,7 @@ func showGameResult() {
 }
 
 func showCurrentHP() {
-	fmt.Println(hpHero, setGetGameDataTextRU().hp, "\t\t\t\t", hpDragon, setGetGameDataTextEN().hp)
+	fmt.Println(hpHero, setGetGameDataTextRU().hp, len(heroName), hpDragon, setGetGameDataTextEN().hp)
 }
 
 func checkCurrentHp() {
@@ -209,6 +213,17 @@ func gameEnd() {
 	fmt.Println("\n\n")
 	fmt.Println(checkLangwReturn(setGetGameDataTextRU().gameOver, setGetGameDataTextEN().gameOver))
 	showGameResult()
+}
+
+func showWinner() {
+	if hpHero > hpDragon {
+		fmt.Println("")
+		fmt.Println(checkLangwReturn(setGetGameDataTextRU().winner, setGetGameDataTextEN().winner),
+			checkLangwReturn(setGetGameDataTextRU().hero, setGetGameDataTextEN().hero))
+	} else if hpDragon > hpHero {
+		fmt.Println(checkLangwReturn(setGetGameDataTextRU().winner, setGetGameDataTextEN().winner),
+			checkLangwReturn(setGetGameDataTextRU().dragon, setGetGameDataTextEN().dragon))
+	}
 }
 
 func showWeaponHero() {
@@ -233,17 +248,17 @@ func randomize(min int, max int) int {
 	return min + rand.Intn(max-min)
 }
 
-func attackToDragonName() {
+func attackToDragon() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	switch weaponHero {
 	case 1:
-		randomized := randomize(0, 10)
+		randomized := randomize(0, 20)
 		casesAttackToDragon(randomized, harmOfSword)
 	case 2:
-		randomized := randomize(10, 20)
+		randomized := randomize(10, 30)
 		casesAttackToDragon(randomized, harmOfArrow)
 	case 3:
-		randomized := randomize(20, 30)
+		randomized := randomize(20, 40)
 		casesAttackToDragon(randomized, harmOfFrstn)
 	default:
 		fmt.Println(checkLangwReturn(setGetMainMenuTextRU().incorrectInp, setGetMainMenuTextEN().incorrectInp))
