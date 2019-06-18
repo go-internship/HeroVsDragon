@@ -1,4 +1,4 @@
-/* Author - sula7 (sulafpv)
+/* Author - sula7 (@sulafpv)
 Please read a manual on GitHub on how to run this application
 */
 
@@ -29,20 +29,20 @@ const harmOfFrstn = 30
 
 var heroName string //input
 
-type menuData struct {
+type menuData struct { //Тексты главного меню
 	point1, point2, point3, langRU, langEN, loading, bye, incorrectInp string
 }
 
-type gameDataText struct {
+type gameDataText struct { //Игровые тексты
 	hp, dragonMiss, harmHeroToDragon, harmDragonToHero, hero, dragon, entHeroName,
-	gameOver, selWeapon, weapon1, weapon2, weapon3, winner string
+	gameOver, selWeapon, weapon1, weapon2, weapon3, winner, step, standoff string
 }
 
-type gameDataLogic struct {
+type gameDataLogic struct { //Игровая логика
 	harmOfSword, harmOfArrow, harmOfFrstn int
 }
 
-func setGetMainMenuTextRU() menuData {
+func setGetMainMenuTextRU() menuData { //Тексты главного меню
 	mainMenu := menuData{
 		point1:       "1. Начать новую игру",
 		point2:       "2. Выбрать язык",
@@ -56,7 +56,7 @@ func setGetMainMenuTextRU() menuData {
 	return mainMenu
 }
 
-func setGetMainMenuTextEN() menuData {
+func setGetMainMenuTextEN() menuData { //Тексты главного меню
 	mainMenu := menuData{
 		point1:       "1. Start a new game",
 		point2:       "2. Choose lang",
@@ -68,7 +68,7 @@ func setGetMainMenuTextEN() menuData {
 	return mainMenu
 }
 
-func setGetGameDataTextRU() gameDataText {
+func setGetGameDataTextRU() gameDataText { //Игровые тексты
 	data := gameDataText{
 		hp:               "hp",
 		dragonMiss:       "Дракон промахнулся и не нанёс вам урона :)",
@@ -83,11 +83,13 @@ func setGetGameDataTextRU() gameDataText {
 		weapon2:          "2. Стрела",
 		weapon3:          "3. Огненный камень",
 		winner:           "Победил",
+		step:             "Ход #",
+		standoff:         "Победила дружба :)",
 	}
 	return data
 }
 
-func setGetGameDataTextEN() gameDataText {
+func setGetGameDataTextEN() gameDataText { //Игровые тексты
 	data := gameDataText{
 		hp:               "hp",
 		dragonMiss:       "Dragon missed, no harm to Hero :)",
@@ -102,11 +104,13 @@ func setGetGameDataTextEN() gameDataText {
 		weapon2:          "2. Arrow",
 		weapon3:          "3. Firestone",
 		winner:           "Winner is",
+		step:             "Step #",
+		standoff:         "Friendship won :)",
 	}
 	return data
 }
 
-func setGetGameDataLogic() gameDataLogic {
+func setGetGameDataLogic() gameDataLogic { //Игровая логика
 	data := gameDataLogic{
 		harmOfSword: 10,
 		harmOfArrow: 15,
@@ -172,9 +176,10 @@ func selectMainMenuItem() {
 func gameStart() {
 	fmt.Println(checkLangwReturn(setGetGameDataTextRU().entHeroName, setGetGameDataTextEN().entHeroName))
 	inputHeroName()
-	for {
+	for i := 0; ; i++ {
 		if !isGameEnd {
 			showGameResult()
+			showStep(i)
 			showWeaponHero()
 			selectWeapon()
 			attackToDragon()
@@ -190,23 +195,28 @@ func gameStart() {
 func inputHeroName() {
 	someThing := bufio.NewScanner(os.Stdin)
 	someThing.Scan()
-	heroName = strings.TrimSpace(someThing.Text())
+	heroName = strings.TrimSpace(someThing.Text()) //Убирает пробелы в начале и в конце
 	fmt.Println("")
 }
 
 func showGameResult() {
-	fmt.Println(checkLangwReturn(setGetGameDataTextRU().hero, setGetGameDataTextEN().hero), heroName, "\t\t\t", checkLangwReturn(setGetGameDataTextRU().dragon, setGetGameDataTextEN().dragon))
+	fmt.Println(checkLangwReturn(setGetGameDataTextRU().hero, setGetGameDataTextEN().hero), heroName,
+		"\t\t\t", checkLangwReturn(setGetGameDataTextRU().dragon, setGetGameDataTextEN().dragon))
 	showCurrentHP()
 }
 
 func showCurrentHP() {
-	fmt.Println(hpHero, setGetGameDataTextRU().hp, len(heroName), hpDragon, setGetGameDataTextEN().hp)
+	fmt.Println(hpHero, setGetGameDataTextRU().hp, "\t\t\t\t", hpDragon, setGetGameDataTextEN().hp)
 }
 
 func checkCurrentHp() {
 	if hpHero|hpDragon < 1 {
 		isGameEnd = true
 	}
+}
+
+func showStep(step int) {
+	fmt.Println(checkLangwReturn(setGetGameDataTextRU().step, setGetGameDataTextEN().step), step+1)
 }
 
 func gameEnd() {
@@ -219,10 +229,12 @@ func showWinner() {
 	if hpHero > hpDragon {
 		fmt.Println("")
 		fmt.Println(checkLangwReturn(setGetGameDataTextRU().winner, setGetGameDataTextEN().winner),
-			checkLangwReturn(setGetGameDataTextRU().hero, setGetGameDataTextEN().hero))
+			checkLangwReturn(setGetGameDataTextRU().hero, setGetGameDataTextEN().hero), heroName)
 	} else if hpDragon > hpHero {
 		fmt.Println(checkLangwReturn(setGetGameDataTextRU().winner, setGetGameDataTextEN().winner),
 			checkLangwReturn(setGetGameDataTextRU().dragon, setGetGameDataTextEN().dragon))
+	} else if hpDragon == hpHero {
+		fmt.Println(checkLangwReturn(setGetGameDataTextRU().standoff, setGetGameDataTextEN().standoff))
 	}
 }
 
