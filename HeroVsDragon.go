@@ -200,7 +200,7 @@ func inputHeroName() {
 	someThing.Scan()
 	if someThing.Text() == `` {
 		data := map[string]string{}
-		resp, err := http.Get("https://uinames.com/api/?amount=1&gender=male&region=kyrgyz+republicc")
+		resp, err := http.Get("https://uinames.com/api/?amount=1&gender=male&region=kyrgyz+republic")
 		if err != nil {
 			fmt.Println(err)
 			return
