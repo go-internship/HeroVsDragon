@@ -155,7 +155,9 @@ func showStep(step int) {
 }
 
 func gameEnd() {
-	fmt.Println("\n\n")
+	fmt.Println("")
+	fmt.Println("")
+	fmt.Println("")
 	fmt.Println(setGetGameDataText().gameOver)
 	showGameResult()
 }
@@ -172,7 +174,8 @@ func showWinner() {
 }
 
 func showWeaponHero() {
-	fmt.Println("\n")
+	fmt.Println("")
+	fmt.Println("")
 	fmt.Println(setGetGameDataText().selWeapon)
 	weaponHero := [3]string{
 		setGetGameDataText().weapon1,
@@ -186,15 +189,16 @@ func showWeaponHero() {
 
 func selectWeapon() {
 	fmt.Scan(&weaponHero)
-	fmt.Println("\n")
+	fmt.Println("")
+	fmt.Println("")
 }
 
-func randomize(min int, max int) int {
+func randomize(min, max int) int {
+	rand.Seed(time.Now().UTC().UnixNano())
 	return min + rand.Intn(max-min)
 }
 
 func attackToDragon() {
-	rand.Seed(time.Now().UTC().UnixNano())
 	switch weaponHero {
 	case 1:
 		randomized := randomize(0, 20)
@@ -219,7 +223,8 @@ func casesAttackToDragon(randomized int, harm int) {
 	} else {
 		fmt.Println(setGetGameDataText().harmDragonToHero, randomized)
 	}
-	fmt.Println("\n")
+	fmt.Println("")
+	fmt.Println("")
 }
 
 func main() {
