@@ -105,10 +105,10 @@ func gameStart() {
 			showWeaponHero()
 			selectWeapon()
 			attackToDragon()
-			checkCurrentHp()
+			CheckCurrentHp(hpHero, hpDragon)
 		} else if isGameEnd {
 			gameEnd()
-			showWinner()
+			ShowWinner(hpHero, hpDragon)
 			break
 		}
 	}
@@ -119,7 +119,7 @@ func inputHeroName() {
 	someThing.Scan()
 	if someThing.Text() == `` { //для обработки пустой строки
 		data := map[string]string{}
-		resp, err := http.Get("https://uinames.com/api/?amount=1&gender=male&region=kyrgyz+republic")
+		resp, err := http.Get("https://uinames.com/api/?amount=1&gender=male&region=russia")
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -144,10 +144,11 @@ func showCurrentHP() {
 	fmt.Println(hpHero, setGetGameDataText().hp, "\t\t\t\t", hpDragon)
 }
 
-func checkCurrentHp() {
-	if hpHero|hpDragon < 1 {
+func CheckCurrentHp(hpHeroo, hpDragoon int) bool {
+	if hpHeroo|hpDragoon < 1 {
 		isGameEnd = true
 	}
+	return isGameEnd
 }
 
 func showStep(step int) {
@@ -162,15 +163,19 @@ func gameEnd() {
 	showGameResult()
 }
 
-func showWinner() {
-	if hpHero > hpDragon {
+func ShowWinner(hpHeroo, hpDragoon int) int {
+	if hpHeroo > hpDragoon {
 		fmt.Println("")
 		fmt.Println(setGetGameDataText().winner, setGetGameDataText().hero, heroName)
-	} else if hpDragon > hpHero {
+		return hpDragoon
+	} else if hpDragoon > hpHeroo {
 		fmt.Println(setGetGameDataText().winner, setGetGameDataText().dragon)
-	} else if hpDragon == hpHero {
+		return hpDragoon
+	} else if hpDragoon == hpHeroo {
 		fmt.Println(setGetGameDataText().standoff)
+		return hpDragoon
 	}
+	return 0
 }
 
 func showWeaponHero() {
@@ -202,22 +207,29 @@ func attackToDragon() {
 	switch weaponHero {
 	case 1:
 		randomized := randomize(0, 20)
-		casesAttackToDragon(randomized, harmOfSword)
+		CasesAttackToDragon(harmOfSword)
+		CasesAttackToHero(randomized)
 	case 2:
 		randomized := randomize(10, 30)
-		casesAttackToDragon(randomized, harmOfArrow)
+		CasesAttackToDragon(harmOfArrow)
+		CasesAttackToHero(randomized)
 	case 3:
 		randomized := randomize(20, 40)
-		casesAttackToDragon(randomized, harmOfFrstn)
+		CasesAttackToDragon(harmOfFrstn)
+		CasesAttackToHero(randomized)
 	default:
 		fmt.Println(setGetMainMenuText().incorrectInp)
 	}
 }
 
-func casesAttackToDragon(randomized int, harm int) {
-	hpHero = hpHero - randomized
+func CasesAttackToDragon(harm int) int {
 	hpDragon = hpDragon - harm
 	fmt.Println(setGetGameDataText().harmHeroToDragon, harm)
+	return hpDragon
+}
+
+func CasesAttackToHero(randomized int) int {
+	hpHero = hpHero - randomized
 	if randomized == 0 {
 		fmt.Println(setGetGameDataText().dragonMiss)
 	} else {
@@ -225,6 +237,7 @@ func casesAttackToDragon(randomized int, harm int) {
 	}
 	fmt.Println("")
 	fmt.Println("")
+	return hpHero
 }
 
 func main() {
