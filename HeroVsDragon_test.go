@@ -2,17 +2,6 @@ package main
 
 import "testing"
 
-/*func TestRand(t *testing.T) {
-	t.Run("Testing randomize func", func(t *testing.T) {
-		got := randomize(10, 100)
-		want := randomize(10, 100)
-
-		if got != want {
-			t.Errorf("got %d want %d", got, want)
-		}
-	})
-}*/
-
 func TestCasesAttackToDragon(t *testing.T) {
 	got := CasesAttackToDragon(70)
 	want := 30
@@ -48,3 +37,20 @@ func TestCheckCurrentHp(t *testing.T) {
 		t.Errorf("got %t want %t", got, want)
 	}
 }
+
+func TestFetchHeroName(t *testing.T) {
+	want := len(FetchHeroName())
+
+	if want < 1 {
+		t.Errorf("Couldn't fetch heroName from API")
+	}
+}
+
+/*func TestSelectMainMenuItem(t *testing.T) {
+	got := selectMainMenuItem()
+	want := true
+
+	if got != want {
+		t.Errorf("got %t want %t", got, want)
+	}
+}*/
