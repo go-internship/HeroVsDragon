@@ -17,43 +17,41 @@ import (
 )
 
 type Menu struct { //Тексты главного меню
-	point1       string
-	point2       string
-	point3       string
-	langRU       string
-	langEN       string
-	loading      string
-	bye          string
-	incorrectInp string
+	point1            string
+	point2            string
+	point3            string
+	langRU            string
+	langEN            string
+	bye               string
+	incorrectInp      string
+	inputMainMenuItem string
 }
 
 var menuText = Menu{ //Тексты главного меню
 	point1:       "1. Начать новую игру",
 	point2:       "2. Выход",
-	loading:      "Загружается...",
 	bye:          "До скорой встречи!",
 	incorrectInp: "Неверный выбор, повторите снова",
 }
 
 type Game struct { //Игровые тексты
-	hp                string
-	dragonMiss        string
-	harmHeroToDragon  string
-	harmDragonToHero  string
-	hero              string
-	dragon            string
-	entHeroName       string
-	gameOver          string
-	selWeapon         string
-	weapon1           string
-	weapon2           string
-	weapon3           string
-	winner            string
-	step              string
-	standoff          string
-	isGameStart       bool
-	isGameEnd         bool
-	inputMainMenuItem string
+	hp               string
+	dragonMiss       string
+	harmHeroToDragon string
+	harmDragonToHero string
+	hero             string
+	dragon           string
+	entHeroName      string
+	gameOver         string
+	selWeapon        string
+	weapon1          string
+	weapon2          string
+	weapon3          string
+	winner           string
+	step             string
+	standoff         string
+	isGameStart      bool
+	isGameEnd        bool
 }
 
 var gameText = Game{ //Игровые тексты
@@ -68,7 +66,7 @@ var gameText = Game{ //Игровые тексты
 	selWeapon:        "Выберите оружие:",
 	weapon1:          "1. Меч",
 	weapon2:          "2. Стрела",
-	weapon3:          "3. Огненный камень",
+	weapon3:          "3. Огненный камень\n",
 	winner:           "Победил",
 	step:             "Ход #",
 	standoff:         "Победила дружба :)",
@@ -79,7 +77,7 @@ var gameText = Game{ //Игровые тексты
 type Hero struct {
 	hp     int
 	damage int
-	weapon int
+	weapon string
 	name   string
 }
 
@@ -97,46 +95,58 @@ var dragonData = Dragon{
 	name: "Драконыч",
 }
 
-func showMainMenu() {
-	fmt.Println(menuText.point1)
-	fmt.Println(menuText.point2)
+func ScanInput(input string) string {
+	scan := bufio.NewScanner(os.Stdin)
+	scan.Scan()
+	input = strings.TrimSpace(scan.Text())
+	return input
 }
 
-func selectMainMenuItem() {
-	someThing := bufio.NewScanner(os.Stdin)
-	someThing.Scan()
-	gameText.inputMainMenuItem = strings.TrimSpace(someThing.Text()) //Убирает пробелы в начале и в конце
-	switch gameText.inputMainMenuItem {
+func SelectMainMenuItem(inputData string) bool {
+	if inputData == "" { //For test
+		inputData = (ScanInput(menuText.inputMainMenuItem))
+	}
+	switch inputData {
 	case "1": //Начать новую игру
-		fmt.Println(menuText.loading)
 		gameText.isGameStart = true
+		return gameText.isGameStart
 	case "2": //Выход
 		fmt.Println(menuText.bye)
+		gameText.isGameStart = false
 		os.Exit(0)
+		return gameText.isGameStart
 	default:
 		fmt.Println(menuText.incorrectInp)
-		selectMainMenuItem()
+		gameText.isGameStart = false
+		return gameText.isGameStart
 	}
+	gameText.isGameStart = false
+	return gameText.isGameStart
 }
 
-func gameStart() {
+func GameStart() {
 	fmt.Println(gameText.entHeroName)
-	inputHeroName()
+	InputHeroName(heroData.name)
 	step := 1
 	for {
 		if !gameText.isGameEnd {
-			showGameResult()
+			ShowGameResult()
 
-			fmt.Println(gameText.step, step) //Shows step
+			fmt.Print(gameText.step, step, "\n\n") //Shows step
 			step++
 
-			showWeaponHero()
-			selectWeapon()
-			attackToDragon()
+			fmt.Println(gameText.selWeapon)
+			fmt.Println(gameText.weapon1)
+			fmt.Println(gameText.weapon2)
+			fmt.Print(gameText.weapon3)
+
+			fmt.Scan(&heroData.weapon) //Input weapon of hero
+
+			AttackHeroAndDragon(heroData.weapon)
 			CheckCurrentHp(heroData.hp, dragonData.hp)
 		} else if gameText.isGameEnd {
 			fmt.Println(gameText.gameOver) //Shows Game Over
-			showGameResult()
+			ShowGameResult()
 
 			ShowWinner(heroData.hp, dragonData.hp)
 			break
@@ -144,15 +154,17 @@ func gameStart() {
 	}
 }
 
-func inputHeroName() {
-	someThing := bufio.NewScanner(os.Stdin)
-	someThing.Scan()
-	if someThing.Text() == `` { //для обработки пустой строки
+func InputHeroName(inputData string) string {
+	if inputData == "" {
+		inputData = ScanInput(heroData.name)
+	}
+	if inputData == `` { //для обработки пустой строки
 		heroData.name = FetchHeroName()
 	} else {
-		heroData.name = strings.TrimSpace(someThing.Text()) //Убирает пробелы в начале и в конце
+		heroData.name = strings.TrimSpace(inputData) //Убирает пробелы в начале и в конце
 	}
-	fmt.Println("")
+	fmt.Print("\n")
+	return heroData.name
 }
 
 func FetchHeroName() string {
@@ -168,13 +180,9 @@ func FetchHeroName() string {
 	return data["name"]
 }
 
-func showGameResult() {
+func ShowGameResult() { //DRY
 	fmt.Println(gameText.hero, heroData.name,
 		"\t\t\t", gameText.dragon, dragonData.name)
-	showCurrentHP()
-}
-
-func showCurrentHP() {
 	fmt.Println(heroData.hp, gameText.hp, "\t\t\t\t", dragonData.hp)
 }
 
@@ -187,7 +195,7 @@ func CheckCurrentHp(hpHero, hpDragon int) bool {
 
 func ShowWinner(hpHero, hpDragon int) int {
 	if hpHero > hpDragon {
-		fmt.Println("")
+		fmt.Print("\n")
 		fmt.Println(gameText.winner, gameText.hero, heroData.name)
 		return hpDragon
 	} else if hpDragon > hpHero {
@@ -200,50 +208,37 @@ func ShowWinner(hpHero, hpDragon int) int {
 	return 0
 }
 
-func showWeaponHero() {
-	fmt.Println("")
-	fmt.Println("")
-	fmt.Println(gameText.selWeapon)
-	weaponHero := [3]string{
-		gameText.weapon1,
-		gameText.weapon2,
-		gameText.weapon3,
-	}
-	for i := 0; i < len(weaponHero); i++ {
-		fmt.Println(weaponHero[i])
-	}
-}
-
-func selectWeapon() {
-	fmt.Scan(&heroData.weapon)
-	fmt.Println("")
-	fmt.Println("")
-}
-
-func randomize(min, max int) int {
+func Randomize(min, max int) int { //DON'T TEST
 	rand.Seed(time.Now().UTC().UnixNano())
 	return min + rand.Intn(max-min)
 }
 
-func attackToDragon() {
-	switch heroData.weapon {
-	case 1:
-		randomized := randomize(0, 20)
+func AttackHeroAndDragon(inputData string) bool {
+	if inputData == "" {
+		inputData = (ScanInput(heroData.weapon))
+	}
+	switch inputData {
+	case "1": //Меч
+		randomized := Randomize(0, 20)
 		heroData.damage = 10
 		CasesAttackToDragon(heroData.damage)
 		CasesAttackToHero(randomized)
-	case 2:
-		randomized := randomize(10, 30)
+		return true
+	case "2": //Стрела
+		randomized := Randomize(10, 30)
 		heroData.damage = 15
 		CasesAttackToDragon(heroData.damage)
 		CasesAttackToHero(randomized)
-	case 3:
-		randomized := randomize(20, 40)
+		return true
+	case "3": //Огненный камень
+		randomized := Randomize(20, 40)
 		heroData.damage = 30
 		CasesAttackToDragon(heroData.damage)
 		CasesAttackToHero(randomized)
+		return false
 	default:
 		fmt.Println(menuText.incorrectInp)
+		return false
 	}
 }
 
@@ -260,18 +255,19 @@ func CasesAttackToHero(randomized int) int {
 	} else {
 		fmt.Println(gameText.harmDragonToHero, randomized)
 	}
-	fmt.Println("")
-	fmt.Println("")
+	fmt.Print("\n\n")
 	return heroData.hp
 }
 
 func main() {
 	for {
-		showMainMenu()
-		selectMainMenuItem()
+		fmt.Println(menuText.point1) //Shows main menu
+		fmt.Println(menuText.point2)
+
+		SelectMainMenuItem(menuText.inputMainMenuItem)
 		if gameText.isGameStart {
 			break
 		}
 	}
-	gameStart()
+	GameStart()
 }

@@ -46,11 +46,27 @@ func TestFetchHeroName(t *testing.T) {
 	}
 }
 
-/*func TestSelectMainMenuItem(t *testing.T) {
-	got := selectMainMenuItem()
+func TestSelectMainMenuItem(t *testing.T) {
+	got := SelectMainMenuItem("1")
 	want := true
-
 	if got != want {
 		t.Errorf("got %t want %t", got, want)
 	}
-}*/
+}
+
+func TestAttackHeroAndDragon(t *testing.T) {
+	got := AttackHeroAndDragon("1")
+	want := true
+	if got != want {
+		t.Errorf("got %t want %t", got, want)
+	}
+}
+
+func TestInputHeroName(t *testing.T) {
+	got := InputHeroName("   AA\t")
+	want := "AA"
+
+	if got != want {
+		t.Errorf("got %s want %s", got, want)
+	}
+}
