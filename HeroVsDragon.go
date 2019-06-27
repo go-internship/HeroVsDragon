@@ -95,14 +95,14 @@ var dragonData = Dragon{
 	name: "Драконыч",
 }
 
-func ScanInput(input string) string {
+func ScanInput(input string) string { //CAN'T TEST
 	scan := bufio.NewScanner(os.Stdin)
 	scan.Scan()
 	input = strings.TrimSpace(scan.Text())
 	return input
 }
 
-func SelectMainMenuItem(inputData string) bool {
+func SelectMainMenuItem(inputData string) bool { //TESTED
 	if inputData == "" { //For test
 		inputData = (ScanInput(menuText.inputMainMenuItem))
 	}
@@ -124,37 +124,7 @@ func SelectMainMenuItem(inputData string) bool {
 	return gameText.isGameStart
 }
 
-func GameStart() {
-	fmt.Println(gameText.entHeroName)
-	InputHeroName(heroData.name)
-	step := 1
-	for {
-		if !gameText.isGameEnd {
-			ShowGameResult()
-
-			fmt.Print(gameText.step, step, "\n\n") //Shows step
-			step++
-
-			fmt.Println(gameText.selWeapon)
-			fmt.Println(gameText.weapon1)
-			fmt.Println(gameText.weapon2)
-			fmt.Print(gameText.weapon3)
-
-			fmt.Scan(&heroData.weapon) //Input weapon of hero
-
-			AttackHeroAndDragon(heroData.weapon)
-			CheckCurrentHp(heroData.hp, dragonData.hp)
-		} else if gameText.isGameEnd {
-			fmt.Println(gameText.gameOver) //Shows Game Over
-			ShowGameResult()
-
-			ShowWinner(heroData.hp, dragonData.hp)
-			break
-		}
-	}
-}
-
-func InputHeroName(inputData string) string {
+func InputHeroName(inputData string) string { //TESTED
 	if inputData == "" {
 		inputData = ScanInput(heroData.name)
 	}
@@ -167,7 +137,7 @@ func InputHeroName(inputData string) string {
 	return heroData.name
 }
 
-func FetchHeroName() string {
+func FetchHeroName() string { //TESTED
 	data := map[string]string{}
 	resp, err := http.Get("https://uinames.com/api/?amount=1&gender=male&region=russia")
 	if err != nil {
@@ -180,20 +150,20 @@ func FetchHeroName() string {
 	return data["name"]
 }
 
-func ShowGameResult() { //DRY
+func ShowGameResult() { //DRY //CAN'T TEST
 	fmt.Println(gameText.hero, heroData.name,
 		"\t\t\t", gameText.dragon, dragonData.name)
 	fmt.Println(heroData.hp, gameText.hp, "\t\t\t\t", dragonData.hp)
 }
 
-func CheckCurrentHp(hpHero, hpDragon int) bool {
+func CheckCurrentHp(hpHero, hpDragon int) bool { //TESTED
 	if hpHero|hpDragon < 1 {
 		gameText.isGameEnd = true
 	}
 	return gameText.isGameEnd
 }
 
-func ShowWinner(hpHero, hpDragon int) int {
+func ShowWinner(hpHero, hpDragon int) int { //TESTED
 	if hpHero > hpDragon {
 		fmt.Print("\n")
 		fmt.Println(gameText.winner, gameText.hero, heroData.name)
@@ -208,12 +178,12 @@ func ShowWinner(hpHero, hpDragon int) int {
 	return 0
 }
 
-func Randomize(min, max int) int { //DON'T TEST
+func Randomize(min, max int) int { //CAN'T TEST
 	rand.Seed(time.Now().UTC().UnixNano())
 	return min + rand.Intn(max-min)
 }
 
-func AttackHeroAndDragon(inputData string) bool {
+func AttackHeroAndDragon(inputData string) bool { //TESTED
 	if inputData == "" {
 		inputData = (ScanInput(heroData.weapon))
 	}
@@ -242,13 +212,13 @@ func AttackHeroAndDragon(inputData string) bool {
 	}
 }
 
-func CasesAttackToDragon(damage int) int {
+func CasesAttackToDragon(damage int) int { //TESTED
 	dragonData.hp -= damage
 	fmt.Println(gameText.harmHeroToDragon, damage)
 	return dragonData.hp
 }
 
-func CasesAttackToHero(randomized int) int {
+func CasesAttackToHero(randomized int) int { //TESTED
 	heroData.hp -= randomized
 	if randomized == 0 {
 		fmt.Println(gameText.dragonMiss)
@@ -259,7 +229,7 @@ func CasesAttackToHero(randomized int) int {
 	return heroData.hp
 }
 
-func main() {
+func main() { //CAN'T TEST
 	for {
 		fmt.Println(menuText.point1) //Shows main menu
 		fmt.Println(menuText.point2)
@@ -269,5 +239,32 @@ func main() {
 			break
 		}
 	}
-	GameStart()
+
+	fmt.Println(gameText.entHeroName) //GameStart
+	InputHeroName(heroData.name)
+	step := 1
+	for {
+		if !gameText.isGameEnd {
+			ShowGameResult()
+
+			fmt.Print(gameText.step, step, "\n\n") //Shows step
+			step++
+
+			fmt.Println(gameText.selWeapon)
+			fmt.Println(gameText.weapon1)
+			fmt.Println(gameText.weapon2)
+			fmt.Print(gameText.weapon3)
+
+			fmt.Scan(&heroData.weapon) //Input weapon of hero
+
+			AttackHeroAndDragon(heroData.weapon)
+			CheckCurrentHp(heroData.hp, dragonData.hp)
+		} else if gameText.isGameEnd {
+			fmt.Println(gameText.gameOver) //Shows Game Over
+			ShowGameResult()
+
+			ShowWinner(heroData.hp, dragonData.hp)
+			break
+		}
+	}
 }
