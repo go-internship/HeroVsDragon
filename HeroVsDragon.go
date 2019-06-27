@@ -52,6 +52,7 @@ type Game struct { //Игровые тексты
 	standoff         string
 	isGameStart      bool
 	isGameEnd        bool
+	whoIsWinner      int
 }
 
 var gameText = Game{ //Игровые тексты
@@ -120,8 +121,6 @@ func SelectMainMenuItem(inputData string) bool { //TESTED
 		gameText.isGameStart = false
 		return gameText.isGameStart
 	}
-	gameText.isGameStart = false
-	return gameText.isGameStart
 }
 
 func InputHeroName(inputData string) string { //TESTED
@@ -142,7 +141,7 @@ func FetchHeroName() string { //TESTED
 	resp, err := http.Get("https://uinames.com/api/?amount=1&gender=male&region=russia")
 	if err != nil {
 		fmt.Println(err)
-		return "Error fetching name from API"
+		return "Error fetching name"
 	}
 	defer resp.Body.Close()
 	body, _ := ioutil.ReadAll(resp.Body)
@@ -163,17 +162,16 @@ func CheckCurrentHp(hpHero, hpDragon int) bool { //TESTED
 	return gameText.isGameEnd
 }
 
-func ShowWinner(hpHero, hpDragon int) int { //TESTED
+func CheckWinner(hpHero, hpDragon int) int { //TESTED
 	if hpHero > hpDragon {
-		fmt.Print("\n")
-		fmt.Println(gameText.winner, gameText.hero, heroData.name)
-		return hpDragon
+		gameText.whoIsWinner = 1
+		return gameText.whoIsWinner
 	} else if hpDragon > hpHero {
-		fmt.Println(gameText.winner, gameText.dragon)
-		return hpDragon
+		gameText.whoIsWinner = 2
+		return gameText.whoIsWinner
 	} else if hpDragon == hpHero {
-		fmt.Println(gameText.standoff)
-		return hpDragon
+		gameText.whoIsWinner = 3
+		return gameText.whoIsWinner
 	}
 	return 0
 }
@@ -229,18 +227,8 @@ func CasesAttackToHero(randomized int) int { //TESTED
 	return heroData.hp
 }
 
-func main() { //CAN'T TEST
-	for {
-		fmt.Println(menuText.point1) //Shows main menu
-		fmt.Println(menuText.point2)
-
-		SelectMainMenuItem(menuText.inputMainMenuItem)
-		if gameText.isGameStart {
-			break
-		}
-	}
-
-	fmt.Println(gameText.entHeroName) //GameStart
+func GameStart() {
+	fmt.Println(gameText.entHeroName)
 	InputHeroName(heroData.name)
 	step := 1
 	for {
@@ -262,9 +250,29 @@ func main() { //CAN'T TEST
 		} else if gameText.isGameEnd {
 			fmt.Println(gameText.gameOver) //Shows Game Over
 			ShowGameResult()
-
-			ShowWinner(heroData.hp, dragonData.hp)
+			fmt.Print("\n")
+			switch CheckWinner(heroData.hp, dragonData.hp) {
+			case 1:
+				fmt.Println(gameText.winner, gameText.hero, heroData.name)
+			case 2:
+				fmt.Println(gameText.winner, gameText.dragon)
+			case 3:
+				fmt.Println(gameText.standoff)
+			}
 			break
 		}
 	}
+}
+
+func main() { //CAN'T TEST
+	for {
+		fmt.Println(menuText.point1) //Shows main menu
+		fmt.Println(menuText.point2)
+
+		SelectMainMenuItem(menuText.inputMainMenuItem)
+		if gameText.isGameStart {
+			break
+		}
+	}
+	GameStart()
 }
