@@ -149,7 +149,7 @@ func FetchHeroName() string { //TESTED
 	return data["name"]
 }
 
-func ShowGameResult() { //DRY //CAN'T TEST
+func ShowGameResult() { //DRY //DON'T NEED A TEST
 	fmt.Println(gameText.hero, heroData.name,
 		"\t\t\t", gameText.dragon, dragonData.name)
 	fmt.Println(heroData.hp, gameText.hp, "\t\t\t\t", dragonData.hp)
