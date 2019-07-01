@@ -8,6 +8,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"math/rand"
 	"net/http"
@@ -76,64 +77,75 @@ var gameText = Game{ //Игровые тексты
 }
 
 type Hero struct {
+	Dragon
 	hp     int
+	name   string
 	damage int
 	weapon string
-	name   string
-}
-
-var heroData = Hero{
-	hp: 100,
 }
 
 type Dragon struct {
-	hp   int
-	name string
+	hp     int
+	name   string
+	damage int
+	weapon string
 }
 
-var dragonData = Dragon{
-	hp:   100,
-	name: "Драконыч",
-}
-
-func ScanInput(input string) string { //CAN'T TEST
+func ScanInput() string { //CAN'T TEST
 	scan := bufio.NewScanner(os.Stdin)
 	scan.Scan()
-	input = strings.TrimSpace(scan.Text())
+	input := strings.TrimSpace(scan.Text())
 	return input
 }
 
-func SelectMainMenuItem(inputData string) bool { //TESTED
-	if inputData == "" { //For test
-		inputData = (ScanInput(menuText.inputMainMenuItem))
-	}
-	switch inputData {
-	case "1": //Начать новую игру
-		gameText.isGameStart = true
-		return gameText.isGameStart
-	case "2": //Выход
+func SelectMainMenuItem() bool {
+	input := ScanInput()
+	switch input {
+	case "1":
+		return true
+	case "2":
 		fmt.Println(menuText.bye)
-		gameText.isGameStart = false
 		os.Exit(0)
-		return gameText.isGameStart
+		return false
 	default:
 		fmt.Println(menuText.incorrectInp)
-		gameText.isGameStart = false
-		return gameText.isGameStart
+		SelectMainMenuItem()
+	}
+	return false
+}
+
+func (h *Hero) SetHeroName() {
+	input := ScanInput()
+	if input == `` {
+		h.name = FetchHeroName()
+	} else if input != `` {
+		h.name = input
 	}
 }
 
-func InputHeroName(inputData string) string { //TESTED
-	if inputData == "" {
-		inputData = ScanInput(heroData.name)
-	}
-	if inputData == `` { //для обработки пустой строки
-		heroData.name = FetchHeroName()
-	} else {
-		heroData.name = strings.TrimSpace(inputData) //Убирает пробелы в начале и в конце
+func (h *Hero) SetHeroHP() {
+	input := ScanInput()
+	switch input {
+	case "1":
+		h.Dragon.damage = Randomize(0, 20)
+		h.hp -= h.Dragon.damage
+		h.damage = 10
+	case "2":
+		h.Dragon.damage = Randomize(10, 30)
+		h.hp -= h.Dragon.damage
+		h.damage = 15
+	case "3":
+		h.Dragon.damage = Randomize(20, 40)
+		h.hp -= h.Dragon.damage
+		h.damage = 30
+	default:
+		fmt.Printf(menuText.incorrectInp)
 	}
 	fmt.Print("\n")
-	return heroData.name
+}
+
+func (h *Hero) SetDragonHP() {
+	h.Dragon.hp -= h.damage
 }
 
 func FetchHeroName() string { //TESTED
@@ -149,27 +161,27 @@ func FetchHeroName() string { //TESTED
 	return data["name"]
 }
 
-func ShowGameResult() { //DRY //DON'T NEED A TEST
-	fmt.Println(gameText.hero, heroData.name,
-		"\t\t\t", gameText.dragon, dragonData.name)
-	fmt.Println(heroData.hp, gameText.hp, "\t\t\t\t", dragonData.hp)
+func ShowGameResult(hName string, hHP int, dName string, dHP int) { //DRY //DON'T NEED A TEST
+	s := fmt.Sprintf("Герой %s \t\t\t Дракон %s \n", hName, dName)
+	io.WriteString(os.Stdout, s)
+	fmt.Println(hHP, gameText.hp, "\t\t\t\t", dHP, gameText.hp)
 }
 
-func CheckCurrentHp(hpHero, hpDragon int) bool { //TESTED
+func CheckGameEnd(hpHero, hpDragon int) bool {
 	if hpHero|hpDragon < 1 {
 		gameText.isGameEnd = true
 	}
 	return gameText.isGameEnd
 }
 
-func CheckWinner(hpHero, hpDragon int) int { //TESTED
-	if hpHero > hpDragon {
+func CheckWinner(hHP, dHP int) int {
+	if dHP < 0 {
 		gameText.whoIsWinner = 1
 		return gameText.whoIsWinner
-	} else if hpDragon > hpHero {
+	} else if hHP < 0 {
 		gameText.whoIsWinner = 2
 		return gameText.whoIsWinner
-	} else if hpDragon == hpHero {
+	} else if dHP < 0 || hHP < 0 {
 		gameText.whoIsWinner = 3
 		return gameText.whoIsWinner
 	}
@@ -181,61 +193,26 @@ func Randomize(min, max int) int { //CAN'T TEST
 	return min + rand.Intn(max-min)
 }
 
-func AttackHeroAndDragon(inputData string) bool { //TESTED
-	if inputData == "" {
-		inputData = (ScanInput(heroData.weapon))
+func GameStart() bool {
+	hData := Hero{
+		Dragon: Dragon{
+			hp:     100,
+			name:   "Драконыч",
+			damage: 0,
+		},
+		hp:     100,
+		damage: 0,
+		name:   "default",
 	}
-	switch inputData {
-	case "1": //Меч
-		randomized := Randomize(0, 20)
-		heroData.damage = 10
-		CasesAttackToDragon(heroData.damage)
-		CasesAttackToHero(randomized)
-		return true
-	case "2": //Стрела
-		randomized := Randomize(10, 30)
-		heroData.damage = 15
-		CasesAttackToDragon(heroData.damage)
-		CasesAttackToHero(randomized)
-		return true
-	case "3": //Огненный камень
-		randomized := Randomize(20, 40)
-		heroData.damage = 30
-		CasesAttackToDragon(heroData.damage)
-		CasesAttackToHero(randomized)
-		return false
-	default:
-		fmt.Println(menuText.incorrectInp)
-		return false
-	}
-}
 
-func CasesAttackToDragon(damage int) int { //TESTED
-	dragonData.hp -= damage
-	fmt.Println(gameText.harmHeroToDragon, damage)
-	return dragonData.hp
-}
-
-func CasesAttackToHero(randomized int) int { //TESTED
-	heroData.hp -= randomized
-	if randomized == 0 {
-		fmt.Println(gameText.dragonMiss)
-	} else {
-		fmt.Println(gameText.harmDragonToHero, randomized)
-	}
-	fmt.Print("\n\n")
-	return heroData.hp
-}
-
-func GameStart() {
 	fmt.Println(gameText.entHeroName)
-	InputHeroName(heroData.name)
+	hData.SetHeroName()
 	step := 1
 	for {
 		if !gameText.isGameEnd {
-			ShowGameResult()
+			ShowGameResult(hData.name, hData.hp, hData.Dragon.name, hData.Dragon.hp)
 
-			fmt.Print(gameText.step, step, "\n\n") //Shows step
+			fmt.Print(gameText.step, step, "\n\n")
 			step++
 
 			fmt.Println(gameText.selWeapon)
@@ -243,36 +220,37 @@ func GameStart() {
 			fmt.Println(gameText.weapon2)
 			fmt.Print(gameText.weapon3)
 
-			fmt.Scan(&heroData.weapon) //Input weapon of hero
+			hData.SetHeroHP()
+			hData.SetDragonHP()
+			fmt.Println(gameText.harmDragonToHero, hData.Dragon.damage)
+			fmt.Println(gameText.harmHeroToDragon, hData.damage)
 
-			AttackHeroAndDragon(heroData.weapon)
-			CheckCurrentHp(heroData.hp, dragonData.hp)
+			CheckGameEnd(hData.hp, hData.Dragon.hp)
 		} else if gameText.isGameEnd {
-			fmt.Println(gameText.gameOver) //Shows Game Over
-			ShowGameResult()
-			fmt.Print("\n")
-			switch CheckWinner(heroData.hp, dragonData.hp) {
-			case 1:
-				fmt.Println(gameText.winner, gameText.hero, heroData.name)
-			case 2:
-				fmt.Println(gameText.winner, gameText.dragon)
-			case 3:
-				fmt.Println(gameText.standoff)
-			}
 			break
 		}
 	}
+	fmt.Println(gameText.gameOver) //Shows Game Over
+	fmt.Print("\n")
+	ShowGameResult(hData.name, hData.hp, hData.Dragon.name, hData.Dragon.hp)
+	fmt.Print("\n")
+	switch CheckWinner(hData.hp, hData.Dragon.hp) {
+	case 1:
+		fmt.Println(gameText.winner, gameText.hero, hData.name)
+	case 2:
+		fmt.Println(gameText.winner, gameText.dragon, hData.Dragon.name)
+	case 3:
+		fmt.Println(gameText.standoff)
+	}
+	return true
 }
 
 func main() { //CAN'T TEST
-	for {
-		fmt.Println(menuText.point1) //Shows main menu
-		fmt.Println(menuText.point2)
+	fmt.Println(menuText.point1)
+	fmt.Println(menuText.point2)
 
-		SelectMainMenuItem(menuText.inputMainMenuItem)
-		if gameText.isGameStart {
-			break
-		}
+	gameText.isGameStart = SelectMainMenuItem()
+	if gameText.isGameStart {
+		GameStart()
 	}
-	GameStart()
 }
